@@ -8,16 +8,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Theos Environment
-        uses: theos/setup-theos-action@v1
-
-      - name: Build Dylib Package
+      - name: Install Dependencies
         run: |
-          make package FINALPACKAGE=1
-        env:
-          THEOS: ${{ github.workspace }}/theos
+          sudo apt-get update
+          sudo apt-get install -y build-essential curl perl git clang libicu-dev
 
-      - name: Upload Finished Dylib
+      - name: Setup Theos
+        run: |
+          git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
+        
+      - name: Build Package
+        run: |
+          export THEOS=$GITHUB_WORKSPACE/theos
+          make package FINALPACKAGE=1
+        
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AzuriteKey-Dylib
