@@ -11,8 +11,6 @@ jobs:
       - name: Setup Theos
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
-          # Pasang ldid manual untuk MacOS
-          brew install ldid
         
       - name: Build Package
         run: |
@@ -23,4 +21,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AzuriteKey-Dylib
-          path: "packages/*.deb"
+          path: "obj/*.dylib"
