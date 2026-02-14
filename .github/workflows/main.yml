@@ -5,20 +5,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Setup Theos
-        uses: pogo-stick/setup-theos-action@v1.0.2
+      - name: Setup Theos Environment
+        uses: theos/setup-theos-action@v1
 
-      - name: Build Dylib
+      - name: Build Dylib Package
         run: |
-          make package
+          make package FINALPACKAGE=1
         env:
           THEOS: ${{ github.workspace }}/theos
 
-      - name: Upload Result
-        uses: actions/upload-artifact@v3
+      - name: Upload Finished Dylib
+        uses: actions/upload-artifact@v4
         with:
           name: AzuriteKey-Dylib
           path: obj/*.dylib
