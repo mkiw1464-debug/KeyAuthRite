@@ -1,3 +1,6 @@
+# Baris ni untuk elakkan error ldid
+export codesign_ipa = 0
+
 ARCHS = arm64 arm64e
 DEBUG = 0
 FINALPACKAGE = 1
