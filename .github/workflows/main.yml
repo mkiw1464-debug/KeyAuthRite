@@ -8,14 +8,18 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Setup Theos & SDK
+      - name: Setup Theos
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential curl perl git clang libicu-dev
+          sudo apt-get install -y build-essential curl perl git clang libicu-dev xz-utils
           git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
-          curl -LO https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz
+        
+      - name: Setup SDK (Stabil)
+        run: |
           mkdir -p $GITHUB_WORKSPACE/theos/sdks
-          tar -xf iPhoneOS14.5.sdk.tar.xz -C $GITHUB_WORKSPACE/theos/sdks
+          curl -L https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz -o $GITHUB_WORKSPACE/theos/sdks/iPhoneOS14.5.sdk.tar.xz
+          cd $GITHUB_WORKSPACE/theos/sdks
+          tar -xf iPhoneOS14.5.sdk.tar.xz
           rm iPhoneOS14.5.sdk.tar.xz
 
       - name: Build Package
