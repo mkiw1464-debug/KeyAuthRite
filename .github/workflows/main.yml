@@ -15,7 +15,8 @@ jobs:
       - name: Build Package
         run: |
           export THEOS=~/theos
-          make package FINALPACKAGE=1
+          # Tambah flag CODESIGN_IPA=0 di sini juga sebagai langkah keselamatan
+          make package FINALPACKAGE=1 CODESIGN_IPA=0
         
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
