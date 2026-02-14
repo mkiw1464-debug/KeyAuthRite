@@ -3,30 +3,18 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Theos
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential curl perl git clang libicu-dev xz-utils
-          git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
-
-      - name: Setup SDK (Cara Baru)
-        run: |
-          mkdir -p $GITHUB_WORKSPACE/theos/sdks
-          # Kita guna link direct dari server sdt (Theos SDK Team)
-          curl -L "https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz" -o $GITHUB_WORKSPACE/theos/sdks/sdk.tar.xz
-          cd $GITHUB_WORKSPACE/theos/sdks
-          # Gunakan arahan tar yang lebih kuat
-          tar -xJf sdk.tar.xz --strip-components=1
-          rm sdk.tar.xz
-
+          git clone --recursive https://github.com/theos/theos.git ~/theos
+        
       - name: Build Package
         run: |
-          export THEOS=$GITHUB_WORKSPACE/theos
+          export THEOS=~/theos
           make package FINALPACKAGE=1
         
       - name: Upload Artifact
