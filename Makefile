@@ -1,3 +1,4 @@
+# Paksa tutup codesigning supaya tak error ldid
 export codesign_ipa = 0
 
 ARCHS = arm64 arm64e
