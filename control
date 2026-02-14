@@ -1,0 +1,9 @@
+Package: com.azurite.keyauth
+Name: AzuriteKey
+Depends: mobilesubstrate
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Key System for Azurite
+Maintainer: AzuriteAdmin
+Author: AzuriteAdmin
+Section: Tweaks
