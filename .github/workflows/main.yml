@@ -1,0 +1,24 @@
+name: Build Dylib
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Theos
+        uses: pogo-stick/setup-theos-action@v1.0.2
+
+      - name: Build Dylib
+        run: |
+          make package
+        env:
+          THEOS: ${{ github.workspace }}/theos
+
+      - name: Upload Result
+        uses: actions/upload-artifact@v3
+        with:
+          name: AzuriteKey-Dylib
+          path: obj/*.dylib
