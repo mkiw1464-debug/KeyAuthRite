@@ -14,13 +14,14 @@ jobs:
           sudo apt-get install -y build-essential curl perl git clang libicu-dev xz-utils
           git clone --recursive https://github.com/theos/theos.git $GITHUB_WORKSPACE/theos
         
-      - name: Setup SDK (Stabil)
+      - name: Setup SDK (Fix Extract Error)
         run: |
           mkdir -p $GITHUB_WORKSPACE/theos/sdks
-          curl -L https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz -o $GITHUB_WORKSPACE/theos/sdks/iPhoneOS14.5.sdk.tar.xz
+          # Gunakan link download yang lebih stabil
+          curl -L "https://github.com/theos/sdks/raw/master/iPhoneOS14.5.sdk.tar.xz" -o $GITHUB_WORKSPACE/theos/sdks/sdk.tar.xz
           cd $GITHUB_WORKSPACE/theos/sdks
-          tar -xf iPhoneOS14.5.sdk.tar.xz
-          rm iPhoneOS14.5.sdk.tar.xz
+          tar -xJf sdk.tar.xz
+          rm sdk.tar.xz
 
       - name: Build Package
         run: |
