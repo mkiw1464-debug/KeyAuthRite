@@ -4,59 +4,52 @@ static NSString *name = @"azuriteadmin";
 static NSString *ownerid = @"8z9qsAXGks";
 static NSString *secret = @"fea6acbf1b1ef751775c6e12882d8dc1ffb5f264707b7428375e37ed11186697";
 
-void validateWithKeyAuth(NSString *userKey) {
+void checkKey(NSString *userKey) {
     if (!userKey || userKey.length == 0) {
-        dispatch_async(dispatch_get_main_queue(), ^{ exit(0); });
+        exit(0);
         return;
     }
 
     NSString *hwid = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSString *urlRaw = [NSString stringWithFormat:@"https://keyauth.win/api/1.1/?type=login&name=%@&ownerid=%@&secret=%@&version=1.0&key=%@&hwid=%@", name, ownerid, secret, userKey, hwid];
-    NSString *urlEncoded = [urlRaw stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    NSString *urlStr = [NSString stringWithFormat:@"https://keyauth.win/api/1.1/?type=login&name=%@&ownerid=%@&secret=%@&version=1.0&key=%@&hwid=%@", name, ownerid, secret, userKey, hwid];
     
-    // PEMBETULAN: Kod NSURLRequest yang betul untuk elak Error 2
-    NSURL *requestURL = [NSURL URLWithString:urlEncoded];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:requestURL cachePolicy:NSURLRequestUseProtocolCachePolicy timeoutInterval:10.0];
+    NSURL *url = [NSURL URLWithString:[urlStr stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (data && !error) {
-                NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-                if (json && [json[@"success"] boolValue]) {
-                    NSLog(@"[Azurite] Login Berjaya!");
-                } else {
-                    exit(0); // Key salah terus FC
-                }
+    [[[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (data && !error) {
+            NSDictionary *json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            if (json && [json[@"success"] boolValue]) {
+                // KEY BETUL: Biarkan saja, alert akan hilang sendiri.
+                NSLog(@"[Azurite] Success");
             } else {
-                exit(0); // Tiada internet terus FC
+                // KEY SALAH: FC
+                dispatch_async(dispatch_get_main_queue(), ^{ exit(0); });
             }
-        });
+        } else {
+            // ERROR INTERNET: FC
+            dispatch_async(dispatch_get_main_queue(), ^{ exit(0); });
+        }
     }] resume];
 }
 
 void showLogin() {
     dispatch_async(dispatch_get_main_queue(), ^{
-        UIWindow *window = nil;
-        if (@available(iOS 13.0, *)) {
-            for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes) {
-                if (windowScene.activationState == UISceneActivationStateForegroundActive) {
-                    window = windowScene.windows.firstObject;
-                    break;
-                }
-            }
+        // Guna cara paling basic untuk cari window supaya tak crash
+        UIWindow *window = [UIApplication sharedApplication].keyWindow;
+        if (!window && [UIApplication sharedApplication].windows.count > 0) {
+            window = [UIApplication sharedApplication].windows[0];
         }
-        if (!window) window = [UIApplication sharedApplication].keyWindow;
+
+        if (!window || !window.rootViewController) return;
 
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"AZURITE LOGIN" 
-                                       message:@"Sila masukkan license key" 
+                                       message:@"Sila masukkan key" 
                                        preferredStyle:UIAlertControllerStyleAlert];
         
-        [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
-            textField.placeholder = @"License Key";
-        }];
+        [alert addTextFieldWithConfigurationHandler:nil];
         
         [alert addAction:[UIAlertAction actionWithTitle:@"Login" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
-            validateWithKeyAuth(alert.textFields.firstObject.text);
+            checkKey(alert.textFields.firstObject.text);
         }]];
         
         [window.rootViewController presentViewController:alert animated:YES completion:nil];
@@ -64,12 +57,8 @@ void showLogin() {
 }
 
 %ctor {
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIApplicationDidFinishLaunchingNotification 
-                                                      object:nil 
-                                                       queue:[NSOperationQueue mainQueue] 
-                                                  usingBlock:^(NSNotification *note) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            showLogin();
-        });
-    }];
+    // Tunggu 5 saat. Jangan panggil alert terlalu awal, nanti game tak sempat load UI terus FC.
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        showLogin();
+    });
 }
