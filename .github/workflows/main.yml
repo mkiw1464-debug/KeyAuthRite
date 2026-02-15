@@ -15,7 +15,8 @@ jobs:
       - name: Build Package
         run: |
           export THEOS=~/theos
-          make package FINALPACKAGE=1
+          # Kita paksa skip signing sekali lagi di sini
+          make package FINALPACKAGE=1 CODESIGN_IPA=0
         
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
