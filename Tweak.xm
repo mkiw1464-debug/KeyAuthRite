@@ -7,7 +7,6 @@ using namespace std;
 void validateWithKeyAuth(NSString *userKey) {
     if (!userKey || userKey.length == 0) return;
 
-    // Data API kamu
     string name = skCrypt("azuriteadmin").decrypt(); 
     string ownerid = skCrypt("8z9qsAXGks").decrypt(); 
     string secret = skCrypt("fea6acbf1b1ef751775c6e12882d8dc1ffb5f264707b7428375e37ed11186697").decrypt();
@@ -36,19 +35,22 @@ void validateWithKeyAuth(NSString *userKey) {
 
 void showLogin() {
     dispatch_async(dispatch_get_main_queue(), ^{
-        // Cara cari window yang lebih selamat untuk elakkan ralat deprecated
-        UIWindow *window = nil;
-        if (@available(iOS 13.0, *)) {
-            for (UIWindowScene* windowScene in [UIApplication sharedApplication].connectedScenes) {
-                if (windowScene.activationState == UISceneActivationStateForegroundActive) {
-                    window = windowScene.windows.firstObject;
-                    break;
-                }
+        // CARA BARU: Cari window tanpa guna 'keyWindow' yang deprecated
+        UIWindow *activeWindow = nil;
+        NSArray *scenes = [[UIApplication sharedApplication] connectedScenes].allObjects;
+        for (id scene in scenes) {
+            if ([scene isKindOfClass:[UIWindowScene class]] && [scene activationState] == UISceneActivationStateForegroundActive) {
+                activeWindow = ((UIWindowScene *)scene).windows.firstObject;
+                break;
             }
         }
-        if (!window) window = [UIApplication sharedApplication].keyWindow;
+        
+        // Backup untuk iOS lama
+        if (!activeWindow) {
+            activeWindow = [UIApplication sharedApplication].windows.firstObject;
+        }
 
-        if (window && window.rootViewController) {
+        if (activeWindow && activeWindow.rootViewController) {
             UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"AZURITE" 
                                            message:@"Enter License Key" 
                                            preferredStyle:UIAlertControllerStyleAlert];
@@ -56,7 +58,13 @@ void showLogin() {
             [alert addAction:[UIAlertAction actionWithTitle:@"Login" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
                 validateWithKeyAuth(alert.textFields.firstObject.text);
             }]];
-            [window.rootViewController presentViewController:alert animated:YES completion:nil];
+            
+            // Pastikan kita tidak 'present' atas controller yang tengah busy
+            UIViewController *topController = activeWindow.rootViewController;
+            while (topController.presentedViewController) {
+                topController = topController.presentedViewController;
+            }
+            [topController presentViewController:alert animated:YES completion:nil];
         }
     });
 }
