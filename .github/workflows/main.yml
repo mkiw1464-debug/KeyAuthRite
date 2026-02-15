@@ -11,15 +11,20 @@ jobs:
       - name: Setup Theos
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
+          # Pasang ldid supaya proses Signing tak error
+          brew install ldid
         
       - name: Build Package
         run: |
           export THEOS=~/theos
+          # Kita bagi arahan 'make' yang paling selamat
           make package FINALPACKAGE=1 CODESIGN_IPA=0
         
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AzuriteKey-Dylib
-          # Alamat baru yang lebih tepat:
-          path: ".theos/obj/debug/*.dylib"
+          # Kita guna 'path' paling luas supaya GitHub jumpa fail tu
+          path: |
+            .theos/obj/*.dylib
+            packages/*.deb
