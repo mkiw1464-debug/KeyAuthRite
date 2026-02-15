@@ -1,34 +1,39 @@
 #import <UIKit/UIKit.h>
 #import <dlfcn.h>
 
-// Maklumat API KeyAuth Terkini
+// Maklumat API yang baru kamu bagi
 static NSString *name = @"azuriteadmin"; 
 static NSString *ownerid = @"8z9qsAXGks";
 static NSString *secret = @"fea6acbf1b1ef751775c6e12882d8dc1ffb5f264707b7428375e37ed11186697";
-static NSString *version = @"1.0";
 
 void bukaPanelAzurite() {
-    // Pastikan fail .dylib (bukan .deb) sudah di-inject ke dalam IPA
+    // CUBA LOAD DENGAN SELAMAT
     void *handle = dlopen("azurite.dylib", RTLD_LAZY);
     
     if (!handle) {
+        // JIKA FAIL TAK JUMPA, KELUARKAN ALERT SAJA (JANGAN CRASH!)
         dispatch_async(dispatch_get_main_queue(), ^{
-            UIAlertController *err = [UIAlertController alertControllerWithTitle:@"RALAT FAIL" 
-                                     message:@"Login Berjaya! Tetapi fail 'azurite.dylib' tidak dijumpai. Anda mesti extract dylib dari fail .deb asal." 
+            UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+            if (!keyWindow && [[UIApplication sharedApplication] windows].count > 0) {
+                keyWindow = [[UIApplication sharedApplication] windows][0];
+            }
+            
+            UIAlertController *err = [UIAlertController alertControllerWithTitle:@"INFO" 
+                                     message:@"Login Berjaya! Tapi azurite.dylib tak jumpa. Anda tersalah inject fail .deb tadi." 
                                      preferredStyle:UIAlertControllerStyleAlert];
             [err addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
-            [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:err animated:YES completion:nil];
+            [keyWindow.rootViewController presentViewController:err animated:YES completion:nil];
         });
         return;
     }
 }
 
 void validateWithKeyAuth(NSString *userKey) {
-    if (!userKey || [userKey length] == 0) return;
+    if (!userKey || userKey.length == 0) return;
 
     NSString *hwid = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSString *urlStr = [NSString stringWithFormat:@"https://keyauth.win/api/1.1/?type=login&name=%@&ownerid=%@&secret=%@&version=%@&key=%@&hwid=%@", 
-                        name, ownerid, secret, version, userKey, hwid];
+    NSString *urlStr = [NSString stringWithFormat:@"https://keyauth.win/api/1.1/?type=login&name=%@&ownerid=%@&secret=%@&version=1.0&key=%@&hwid=%@", 
+                        name, ownerid, secret, userKey, hwid];
     
     NSURL *url = [NSURL URLWithString:[urlStr stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]]];
 
@@ -40,10 +45,8 @@ void validateWithKeyAuth(NSString *userKey) {
                     bukaPanelAzurite();
                 });
             } else {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    // Jika key salah, app ditutup (opsional, boleh tukar ke alert)
-                    exit(0); 
-                });
+                // Key salah takpa, kita biar saja atau exit(0)
+                exit(0);
             }
         }
     }] resume];
@@ -51,9 +54,15 @@ void validateWithKeyAuth(NSString *userKey) {
 
 void showLogin() {
     dispatch_async(dispatch_get_main_queue(), ^{
+        UIWindow *keyWindow = [[UIApplication sharedApplication] keyWindow];
+        if (!keyWindow && [[UIApplication sharedApplication] windows].count > 0) {
+            keyWindow = [[UIApplication sharedApplication] windows][0];
+        }
+
         UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"AZURITE LOGIN" 
-                                       message:@"Sila masukkan license key anda" 
+                                       message:@"Masukkan Key Anda" 
                                        preferredStyle:UIAlertControllerStyleAlert];
+        
         [alert addTextFieldWithConfigurationHandler:^(UITextField *textField) {
             textField.placeholder = @"License Key";
         }];
@@ -62,9 +71,7 @@ void showLogin() {
             validateWithKeyAuth(alert.textFields.firstObject.text);
         }]];
         
-        UIWindow *window = [UIApplication sharedApplication].keyWindow;
-        if (!window && [UIApplication sharedApplication].windows.count > 0) window = [UIApplication sharedApplication].windows[0];
-        [window.rootViewController presentViewController:alert animated:YES completion:nil];
+        [keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
     });
 }
 
