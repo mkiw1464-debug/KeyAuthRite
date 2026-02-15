@@ -6,7 +6,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = AzuriteKey
 AzuriteKey_FILES = Tweak.x
-# Tambah UIKit dan Foundation di bawah
+# Framework ini wajib untuk NSURLSession dan UIAlertController
 AzuriteKey_FRAMEWORKS = UIKit Foundation
 AzuriteKey_CFLAGS = -fobjc-arc
 
