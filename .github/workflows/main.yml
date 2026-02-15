@@ -11,11 +11,13 @@ jobs:
       - name: Setup Theos
         run: |
           git clone --recursive https://github.com/theos/theos.git ~/theos
+          # Pasang ldid supaya error 'command not found' hilang
+          brew install ldid
         
       - name: Build Package
         run: |
           export THEOS=~/theos
-          # Kita paksa skip signing sekali lagi di sini
+          # Kita paksa skip codesigning dylib buat sementara
           make package FINALPACKAGE=1 CODESIGN_IPA=0
         
       - name: Upload Artifact
