@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Untuk Nur Batrisha</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <style>
+        :root { --maroon: #4a0404; --bright-maroon: #a10000; --gold: #ffd700; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: black; overflow: hidden; font-family: 'Courier New', Courier, monospace; }
+        
+        #matrix-bg { position: fixed; top: 0; left: 0; z-index: 1; }
+
+        .overlay {
+            position: relative; z-index: 10; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.85);
+        }
+
+        /* Landscape Animation */
+        #landscape-guide { text-align: center; color: white; display: flex; flex-direction: column; align-items: center; }
+        .phone-icon {
+            width: 40px; height: 80px; border: 3px solid white; border-radius: 8px;
+            margin-bottom: 20px; animation: rotatePhone 2s infinite ease-in-out;
+        }
+        @keyframes rotatePhone {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-90deg); }
+            100% { transform: rotate(0deg); }
+        }
+        #done-btn {
+            margin-top: 30px; padding: 15px 40px; background: var(--bright-maroon);
+            color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 15px var(--bright-maroon);
+        }
+
+        /* Countdown & Phrases */
+        #countdown-ui { font-size: 12rem; font-weight: bold; color: var(--bright-maroon); text-shadow: 0 0 40px var(--bright-maroon); display: none; }
+        #intro-phrases { font-size: 4rem; text-align: center; color: white; display: none; text-transform: uppercase; letter-spacing: 8px; font-weight: bold; }
+
+        /* The Flip Book */
+        .swiper { width: 85%; height: 80%; display: none; }
+        .swiper-slide {
+            background: #fffafa; border-radius: 15px; border: 12px solid var(--maroon);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 20px; box-sizing: border-box; color: #1a1a1a; box-shadow: inset 0 0 50px rgba(0,0,0,0.2);
+        }
+        .swiper-slide img { width: 100%; height: 75%; object-fit: cover; border-radius: 8px; border: 3px solid var(--maroon); }
+        .wish-text { margin-top: 20px; font-style: italic; text-align: center; font-size: 1.3rem; font-family: 'Georgia', serif; color: #4a0404; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <div class="overlay">
+        <!-- Step 1: Landscape Guide -->
+        <div id="landscape-guide">
+            <div class="phone-icon"></div>
+            <p style="letter-spacing: 3px;">PLEASE LANDSCAPE YOUR IPHONE</p>
+            <button id="done-btn">DONE</button>
+        </div>
+
+        <!-- Step 2: Matrix Countdown -->
+        <div id="countdown-ui">3</div>
+
+        <!-- Step 3: Text Phrases -->
+        <div id="intro-phrases"></div>
+
+        <!-- Step 4: The Flip Book -->
+        <div class="swiper mySwiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <img src="https://i.ibb.co/mCs6T5cR/IMG-5514.jpg" alt="Batrisha">
+                    <div class="wish-text">"Dalam banyak-banyak bintang..."</div>
+                </div>
+                <div class="swiper-slide">
+                    <img src="https://i.ibb.co/99PQ8Q52/IMG-5306.jpg" alt="Batrisha">
+                    <div class="wish-text">"Hanya awak yang paling bercahaya."</div>
+                </div>
+                <div class="swiper-slide">
+                    <img src="https://i.ibb.co/CpktD9pm/0e89767b-8c56-49e0-a95d-a00625f03bd8.jpg" alt="Batrisha">
+                    <div class="wish-text">"Terima kasih sebab wujud..."</div>
+                </div>
+                <div class="swiper-slide">
+                    <img src="https://i.ibb.co/67VW0tyG/bc481f2e-352e-447d-89ec-9f0d40141afd.jpg" alt="Batrisha">
+                    <div class="wish-text">"Dan beri warna dalam hidup saya."</div>
+                </div>
+                <div class="swiper-slide">
+                    <img src="https://i.ibb.co/KpxgXbBP/e5e4a40f-562f-4b64-88fd-209675fc6711.jpg" alt="Batrisha">
+                    <div class="wish-text">"Nur Batrisha, I Love You." ❤️</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Background Music -->
+    <audio id="bg-music" loop>
+        <source src="lagu.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script>
+        const canvas = document.getElementById('matrix-bg');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const chars = "SAYASAYANGAWAKBATRISHA01";
+        const fontSize = 18;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#4a0404"; 
+            ctx.font = fontSize + "px monospace";
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 40);
+
+        const guide = document.getElementById('landscape-guide');
+        const countdownUI = document.getElementById('countdown-ui');
+        const introPhrases = document.getElementById('intro-phrases');
+        const swiperContainer = document.querySelector('.swiper');
+        const music = document.getElementById('bg-music');
+        const doneBtn = document.getElementById('done-btn');
+
+        doneBtn.addEventListener('click', () => {
+            guide.classList.add('hidden');
+            countdownUI.style.display = 'block';
+            music.play().catch(() => console.log("Audio play failed"));
+
+            let count = 3;
+            const timer = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownUI.innerText = count;
+                } else {
+                    clearInterval(timer);
+                    countdownUI.style.display = 'none';
+                    startIntro();
+                }
+            }, 1000);
+        });
+
+        function startIntro() {
+            introPhrases.style.display = 'block';
+            const texts = ["SAYA", "SAYANG", "AWAK"];
+            let idx = 0;
+            const textTimer = setInterval(() => {
+                if(idx < texts.length) {
+                    introPhrases.innerText = texts[idx];
+                    idx++;
+                } else {
+                    clearInterval(textTimer);
+                    introPhrases.style.display = 'none';
+                    showBook();
+                }
+            }, 1200);
+        }
+
+        function showBook() {
+            swiperContainer.style.display = 'block';
+            new Swiper(".mySwiper", {
+                effect: "flip",
+                grabCursor: true,
+            });
+        }
+    </script>
+</body>
+</html>
